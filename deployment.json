@@ -1,0 +1,26 @@
+{
+  "project": "ConsentRouter",
+  "network": "GenLayer Studio Next",
+  "chainId": 61997,
+  "rpcUrl": "https://studio-next.genlayer.com/api",
+  "explorer": "https://explorer-studio-dev.genlayer.com",
+  "repositoryUrl": "https://github.com/nearar22/consent-router",
+  "contractAddress": "0x03e4b775b01B4a26CB038210F0DF46D7dD72842c",
+  "contractSourceCommit": "0fd88c0eadc34a7427aebcd8d46da8526ab7e299",
+  "sourceSha256": "971b9e621d080631d403d498a574c0ba9a3f63b1b5c5a7d7aa8c3257f86eec97",
+  "sourceMatchesDeployment": true,
+  "deploymentTransaction": "0xab16a90f466dda07ae8b946acc781c0f7b4300432ee05e757545d0370552f558",
+  "liveProof": {
+    "demoCharter": "consent-demo-mukgdciq",
+    "createTransaction": "0x42586ac1e01a27298818446bbcc306a7ce4594a74bfe1ea63011096b08832f16",
+    "proposeTransaction": "0xf0deff509b8e1c6f66c7aa6f4c8834553b4b3cbeb647a1c8053ae9f02f452bb7",
+    "routeTransaction": "0x1702af9058f0d1a7368ab59e3ba230cc94dd0d1f0a7013bcd4cc968bcd8c7f58",
+    "releaseApprovalTransaction": "0xa46c02afdc3732257d114a71e1851a6543f323c5b3daf90d2aefd161c9e5a5ef",
+    "evidenceApprovalTransaction": "0x0b0c39f29729192464be4da248f5b173391d24af194e81c9411a4325375ea3f9",
+    "activationTransaction": "0x3fc1f48a45bbb1dae149ee3e41fe25b7d11b05a2b1ef5d960d4618718adadd18",
+    "routeConsensus": "MAJORITY_AGREE",
+    "storedChangeStatus": "ACTIVE",
+    "approvedIndexes": [0, 1],
+    "charterVersion": 2
+  }
+}

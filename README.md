@@ -45,6 +45,16 @@ For Studio Next deployment, load `GENLAYER_PRIVATE_KEY` and run `npm run deploy`
 
 Deployment address, source digest, and finalized transaction evidence are recorded in `deployment.json` after the network lifecycle succeeds.
 
+## Live Studio Next deployment
+
+- Contract: [`0x03e4...842c`](https://explorer-studio-dev.genlayer.com/address/0x03e4b775b01B4a26CB038210F0DF46D7dD72842c)
+- Deployment: [`0xab16...f558`](https://explorer-studio-dev.genlayer.com/tx/0xab16a90f466dda07ae8b946acc781c0f7b4300432ee05e757545d0370552f558)
+- Validator-audited route: [`0x1702...7f58`](https://explorer-studio-dev.genlayer.com/tx/0x1702af9058f0d1a7368ab59e3ba230cc94dd0d1f0a7013bcd4cc968bcd8c7f58)
+- Final activation: [`0x3fc1...dd18`](https://explorer-studio-dev.genlayer.com/tx/0x3fc1f48a45bbb1dae149ee3e41fe25b7d11b05a2b1ef5d960d4618718adadd18)
+- Source SHA-256: `971b9e621d080631d403d498a574c0ba9a3f63b1b5c5a7d7aa8c3257f86eec97`
+
+The recorded evidence run finalized every transaction with `MAJORITY_AGREE`, stored both required approvals, activated the change, and advanced the charter from version 1 to version 2. `npm run verify` confirmed an exact deployed-source match.
+
 ## Originality record
 
 The mechanism-level comparison with earlier work is in [`docs/mechanism-comparison.md`](docs/mechanism-comparison.md). ConsentRouter is a standalone Intelligent Contract repository and intentionally contains no frontend.
