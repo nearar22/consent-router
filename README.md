@@ -10,7 +10,7 @@ The result is not a score. It is an enforceable consent manifest. Each required 
 
 1. `create_charter` freezes the initial text, member wallets, roles, and protected scopes.
 2. `propose_change` binds an amendment to the current charter version and digest.
-3. `route_consent` asks validators for the complete affected-member set and quote bindings.
+3. `route_consent` accepts a cited candidate route, then asks validators to reject it unless the affected-member set is exact and complete.
 4. `approve` records consent only from a routed wallet. `reject` is terminal.
 5. `activate` is permissionless once all required approvals exist.
 6. A competing activation invalidates the old baseline. `mark_stale` closes the outdated proposal.
@@ -18,7 +18,7 @@ The result is not a score. It is an enforceable consent manifest. Each required 
 
 ## What consensus decides
 
-Validators decide one bounded question: which frozen member scopes are materially touched by the proposed text? They audit the complete candidate route rather than trusting a leader's list. The stored result contains no unchecked narrative or score. Deterministic code validates exact member indexes, quote presence, one binding per member, lifecycle, wallet identity, baseline freshness, and unanimous approval within the routed subset.
+Validators decide one bounded question: does the submitted route include every materially affected frozen member scope and no unaffected scope? They audit the complete candidate route instead of asking one model to invent the list. The stored result contains no unchecked narrative or score. Deterministic code validates exact member indexes, quote presence, one binding per member, lifecycle, wallet identity, baseline freshness, and unanimous approval within the routed subset.
 
 This is different from a normal multisig, where the signer set is configured before the content is known. It also differs from semantic change classification: the validator result directly determines which wallets acquire veto power for this amendment.
 

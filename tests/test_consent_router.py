@@ -53,7 +53,7 @@ def test_member_identity_and_duplicate_charters_are_guarded(direct_vm, direct_de
 
 def test_complete_dynamic_consent_route_and_permissionless_activation(direct_vm, direct_deploy, direct_alice, direct_bob, monkeypatch):
     c = direct_deploy(CONTRACT); enable_consensus(c, monkeypatch); change_id = setup(c, direct_vm, direct_alice, direct_bob)
-    direct_vm.mock_llm("CONSENTROUTER_PRODUCER", json.dumps(route_both())); routed = c.route_consent(change_id); direct_vm.clear_mocks()
+    routed = c.route_consent(change_id, route_both())
     assert routed["required_indexes"] == [0, 1] and len(routed["bindings"]) == 2
     direct_vm.sender = direct_alice; assert c.approve(change_id)["remaining"] == 1
     with direct_vm.expect_revert("Missing required approvals"): c.activate(change_id)
@@ -66,7 +66,7 @@ def test_complete_dynamic_consent_route_and_permissionless_activation(direct_vm,
 def test_only_semantically_routed_members_can_consent_or_reject(direct_vm, direct_deploy, direct_alice, direct_bob, monkeypatch):
     c = direct_deploy(CONTRACT); enable_consensus(c, monkeypatch); change_id = setup(c, direct_vm, direct_alice, direct_bob)
     one = json.dumps({"required_indexes": [1], "bindings": [{"member_index": 1, "proposal_quote": "summarize source quotes without preserving exact text", "scope_quote": "Source attribution, exact evidence quotes, and validator audit integrity"}]})
-    direct_vm.mock_llm("CONSENTROUTER_PRODUCER", json.dumps(one)); c.route_consent(change_id); direct_vm.clear_mocks()
+    c.route_consent(change_id, one)
     direct_vm.sender = direct_alice
     with direct_vm.expect_revert("consent is not required"): c.approve(change_id)
     direct_vm.sender = direct_bob; result = c.reject(change_id, "Exact evidence quotes remain mandatory.")
@@ -85,9 +85,8 @@ def test_forged_routes_and_quotes_fail_closed(direct_vm, direct_deploy, direct_a
     ]
     for number, (payload, message) in enumerate(bad_routes):
         change_id = setup(c, direct_vm, direct_alice, direct_bob, "guard-" + str(number))
-        direct_vm.mock_llm("CONSENTROUTER_PRODUCER", json.dumps(json.dumps(payload)))
-        with direct_vm.expect_revert(message): c.route_consent(change_id)
-        direct_vm.clear_mocks(); assert c.get_change(change_id)["status"] == "PROPOSED"
+        with direct_vm.expect_revert(message): c.route_consent(change_id, json.dumps(payload))
+        assert c.get_change(change_id)["status"] == "PROPOSED"
 
 
 def test_validator_rejects_semantic_omission_even_when_shape_is_valid(direct_vm, direct_deploy, direct_alice, direct_bob, monkeypatch):
@@ -99,9 +98,8 @@ def test_validator_rejects_semantic_omission_even_when_shape_is_valid(direct_vm,
         return json.dumps(candidate)
     enable_consensus(c, monkeypatch, independent_validator); change_id = setup(c, direct_vm, direct_alice, direct_bob)
     omitted = json.dumps({"required_indexes": [0], "bindings": [{"member_index": 0, "proposal_quote": "shown as complete when accepted", "scope_quote": "Release finality, deployment status, and public completion claims"}]})
-    direct_vm.mock_llm("CONSENTROUTER_PRODUCER", json.dumps(omitted))
-    with direct_vm.expect_revert("Validator rejected omitted affected member"): c.route_consent(change_id)
-    direct_vm.clear_mocks(); assert c.get_change(change_id)["status"] == "PROPOSED"
+    with direct_vm.expect_revert("Validator rejected omitted affected member"): c.route_consent(change_id, omitted)
+    assert c.get_change(change_id)["status"] == "PROPOSED"
 
 
 def test_concurrent_change_becomes_stale_after_other_activation(direct_vm, direct_deploy, direct_alice, direct_bob, monkeypatch):
@@ -110,7 +108,7 @@ def test_concurrent_change_becomes_stale_after_other_activation(direct_vm, direc
     c.propose_change("parallel-charter", "change-one", "First change", PROPOSAL)
     c.propose_change("parallel-charter", "change-two", "Second change", PROPOSAL + " Additional release note.")
     for change_id in ("change-one", "change-two"):
-        direct_vm.mock_llm("CONSENTROUTER_PRODUCER", json.dumps(route_both())); c.route_consent(change_id); direct_vm.clear_mocks()
+        c.route_consent(change_id, route_both())
     c.approve("change-one"); direct_vm.sender = direct_bob; c.approve("change-one"); c.activate("change-one")
     stale = c.mark_stale("change-two"); assert stale["status"] == "STALE"
     with direct_vm.expect_revert("not awaiting activation"): c.activate("change-two")
@@ -120,4 +118,4 @@ def test_withdrawal_and_replay_are_terminal(direct_vm, direct_deploy, direct_ali
     c = direct_deploy(CONTRACT); enable_consensus(c, monkeypatch); change_id = setup(c, direct_vm, direct_alice, direct_bob)
     assert c.withdraw_change(change_id)["status"] == "WITHDRAWN"
     with direct_vm.expect_revert("cannot be withdrawn"): c.withdraw_change(change_id)
-    with direct_vm.expect_revert("only be routed once"): c.route_consent(change_id)
+    with direct_vm.expect_revert("only be routed once"): c.route_consent(change_id, route_both())

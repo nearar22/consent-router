@@ -13,14 +13,21 @@ const clients = [createClient({ chain, account: primary }), createClient({ chain
 const id = `consent-demo-${Date.now().toString(36)}`;
 const change = `${id}-change`;
 const baseline = "A release is complete only after finalization. Public evidence findings preserve exact source quotes and validator-audited attribution.";
-const proposal = "A release may be shown as complete when accepted. Public evidence findings may summarize source quotes without preserving exact text.";
+const proposal = "Release finality and public completion claims are changed: an accepted release may be shown as complete before finalization. Source attribution, exact evidence quotes, and validator audit integrity are changed: findings may omit exact source quotes.";
 const members = JSON.stringify([
   { address: primary.address, role: "Release steward", protected_scope: "Release finality, deployment status, and public completion claims." },
   { address: secondary.address, role: "Evidence steward", protected_scope: "Source attribution, exact evidence quotes, and validator audit integrity." },
 ]);
+const route = JSON.stringify({
+  required_indexes: [0, 1],
+  bindings: [
+    { member_index: 0, proposal_quote: "Release finality and public completion claims", scope_quote: "Release finality, deployment status, and public completion claims" },
+    { member_index: 1, proposal_quote: "Source attribution, exact evidence quotes, and validator audit integrity", scope_quote: "Source attribution, exact evidence quotes, and validator audit integrity" },
+  ],
+});
 
 async function write(client, label, functionName, args, intelligent = false) {
-  const fees = await client.estimateTransactionFees({ leaderTimeunitsAllocation: intelligent ? 500n : 180n, validatorTimeunitsAllocation: intelligent ? 650n : 360n });
+  const fees = await client.estimateTransactionFees({ leaderTimeunitsAllocation: intelligent ? 500n : 180n, validatorTimeunitsAllocation: intelligent ? 600n : 360n });
   const hash = await client.writeContract({ address: contract, functionName, args, fees });
   console.log(`${label}_TX=${hash}`);
   const receipt = await client.waitForTransactionReceipt({ hash, waitUntil: "finalized", retries: 300, interval: 3000, fullTransaction: true });
@@ -34,7 +41,7 @@ async function write(client, label, functionName, args, intelligent = false) {
 
 await write(clients[0], "CREATE", "create_charter", [id, "Release truth charter", baseline, members]);
 await write(clients[0], "PROPOSE", "propose_change", [id, change, "Relax release and evidence rules", proposal]);
-await write(clients[0], "ROUTE", "route_consent", [change], true);
+await write(clients[0], "ROUTE", "route_consent", [change, route], true);
 const routed = await clients[0].readContract({ address: contract, functionName: "get_change", args: [change], jsonSafeReturn: true });
 console.log(`ROUTED_STATE=${JSON.stringify(routed)}`);
 if (routed.status !== "AWAITING_CONSENT" || routed.required_indexes.length !== 2) throw new Error("Live route did not bind both affected members");
